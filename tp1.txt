@@ -1,0 +1,53 @@
+ej1: algoritmo de backtracking
+El recorrido del backtracking es como un arbol. Cada nivel de profundidad corresponde a una prenda
+Y cada nodo tiene n hijos (representando el maximo de n lavadoras)
+Funcion de costo: Cantidad de lavarropas de la solucion actual -> O(1)
+Funcion limite: si hay o no incompatibilidades -> O(n^2) si revisamos desde 0, O(n) si solo revisamos
+el ultimo que se agrego.(sería con una matriz de incompatibilidades, revisando la fila del agregado)
+Podar: Poda una rama cuando fcosto(solucion_actual) >= fcosto(solucion_mejor) o cuando la funcion limite
+devuelve que no es una solucion del problema
+
+---------------------------------------------
+
+Parte 2: Los invictos del torneo
+En el reino de Valgrund se celebra cada siglo el Gran Torneo de las Criaturas. 
+Cada criatura que se presenta a competir queda registrada con dos atributos independientes: 
+su Poder de Ataque y su Poder de Defensa, ambos medidos en números enteros. El consejo de sabios 
+quiere anunciar cuáles son las criaturas invictas: aquellas que ninguna otra logra superar. Las 
+reglas del torneo son precisas: se dice que una criatura C = (x’, y’) domina a otra D = (x, y) cuando 
+la supera estrictamente en Poder de Ataque y, a la vez, la iguala o supera en Poder de Defensa. 
+Es decir, C domina a D si y solo si x < x’ e y <= y’. Una criatura que no es dominada por ninguna 
+otra es una invicta, y merece un lugar en el salón de las leyendas. Observación: la desigualdad en
+el ataque es estricta, mientras que en la defensa no lo es. Prestar especial atención a las criaturas
+que comparten el mismo Poder de Ataque. Se pide obtener todas las criaturas invictas de S para grabar
+sus nombres en el salón de las leyendas, así como cuántas son, con una complejidad no mayor a O(N.logN). 
+
+Se pide:
+Explicar la estrategia de división y conquista utilizada para resolver el problema: cómo se parte el 
+conjunto, cómo se combinan las soluciones de los subproblemas y por qué la combinación es correcta.
+Plantear la relación de recurrencia.
+Escribir el pseudocódigo de la solución.
+Analizar la complejidad espacial y temporal. (HINT: de ser requerido, puede 
+realizar un preorden del conjunto antes de comenzar la recursión; justificar cómo impacta 
+ese preorden en la complejidad final)
+Programar la solución.
+Responder: ¿cuántas criaturas invictas puede haber en el peor caso en función de N? 
+Describir una configuración de S que alcance ese máximo y explicar qué implica ese peor
+caso para el tamaño de la salida de tu algoritmo.
+Responder: si dos o más criaturas comparten exactamente los mismos valores de ataque y 
+defensa, ¿todas ellas pueden ser invictas a la vez? ¿Y si comparten solo el Poder de Ataque? 
+Justificar en ambos casos cómo lo contempla tu algoritmo, teniendo en cuenta la estrictez de la 
+desigualdad en el ataque.
+
+Posible solucion:
+Hago un torneo 1 vs 1 con las n criaturas. La que pierda(sea dominada) es eliminada del conjunto y 
+la ganadora continua. Si empatan(no hay dominancia), pasa a la siguiente la que tenga mayor
+defensa. Agrego a un diccionario de invictas al ganador del torneo. Repito el torneo, pero, 
+solo con las criaturas que perdieron contra el campeon y el/los campeon/es(ante empate no pasara). 
+De ahí saldra otro campeon, al cual agregare al diccionario y agregare al torneo aquellos a quien halla
+vencido(en el primer torneo). Se repetira el torneo hasta que vuelva a ganar un ex-campeon: es decir, 
+todos los restantes hayan sido dominados.
+Empataran dos criaturas <=> a.atk = b.atk, ya que en competencia de defensa siempre hay un ganador(o dos)
+Si perdieron la final contra un ex-campeon, esto quiere decir que tenía mayor ataque y mayor igual 
+defensa. Por lo tanto: serían dominados y no invictos.
+Aunque en el peor caso son todos invictos y termino haciendo n^2 batallas
