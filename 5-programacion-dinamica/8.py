@@ -33,30 +33,35 @@ def maximaGanancia(carteles,g,k,i=None,calculados={}):
             return True
         print("en i:",i,"y elegidos",elegidos)
         return k[i] - 5 > k[elegidos[-1]]
+    def cartelCompatible(i):
+        for j in range(i,-1,-1):
+            if k[j] < k[i]-5:
+                print("cartel compatible para",i,":",j)
+                return j
+        return -1
     if i == None: 
         i=len(carteles)-1
     if i < 0: 
         return 0, []
     if calculados.get(i) != None: 
         return calculados[i][VALOR],calculados[i][ELECCION]
-    gananciaExcluido, elegidos = maximaGanancia(carteles,g,k,i-1,calculados)
+    gananciaAnterior, elegidosAnterior = maximaGanancia(carteles,g,k,i-1,calculados)
     gananciaSolo = g[i]
-    if puedeEstar(i, elegidos): 
-        gananciaIncluido = gananciaExcluido + gananciaSolo
-    else: 
-        gananciaIncluido = 0
-    maxima = max(gananciaExcluido, gananciaIncluido, gananciaSolo)
-    if maxima == gananciaIncluido:
-        print("adentro de incluido") 
-        nuevo = elegidos.copy()
-        nuevo.append(i)
-        calculados[i] = (gananciaIncluido, nuevo)
-    elif maxima == gananciaExcluido:
+    gananciaCompatible, elegidosCompatible = maximaGanancia(carteles,g,k,
+                                            cartelCompatible(i),calculados)
+    gananciaCompatible += g[i]
+    maxima = max(gananciaAnterior, gananciaSolo, gananciaCompatible)
+    if maxima == gananciaAnterior:
         print("adentro de excluido") 
-        calculados[i] = (gananciaExcluido, elegidos)
+        calculados[i] = (gananciaAnterior, elegidosAnterior)
     elif maxima == gananciaSolo: 
         print("adentro de solo") 
         calculados[i] = (gananciaSolo, [i])
+    elif maxima == gananciaCompatible:
+        print("adentro de compatible")
+        nuevo = elegidosCompatible.copy()
+        nuevo.append(i)
+        calculados[i] = (gananciaCompatible, nuevo)
     print("i:",i,calculados[i][VALOR],calculados[i][ELECCION])
     return calculados[i][VALOR],calculados[i][ELECCION]
 # ESTA TO DO MAL. TENGO QUE CONSIDERAR CASOS BORDE:
