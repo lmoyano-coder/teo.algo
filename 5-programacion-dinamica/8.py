@@ -64,12 +64,9 @@ def maximaGanancia(carteles,g,k,i=None,calculados={}):
         calculados[i] = (gananciaCompatible, nuevo)
     print("i:",i,calculados[i][VALOR],calculados[i][ELECCION])
     return calculados[i][VALOR],calculados[i][ELECCION]
-# ESTA TO DO MAL. TENGO QUE CONSIDERAR CASOS BORDE:
 g = {0:1,1:2,2:1,3:4,4:1,5:3}
 k = {0:1,1:6,2:7,3:8,4:11,5:13}
 carteles = [0,1,2,3,4,5]
-# en estos de arriba no funciona
-# tal vez tenga que considerar el caso de los j / k[j] < k[i]-5
 calculados = {}
 ganancia, elegidos = maximaGanancia(carteles, g, k,None, calculados)
 print("ganancia",ganancia)
