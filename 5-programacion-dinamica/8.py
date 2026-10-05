@@ -69,4 +69,5 @@ calculados = {}
 ganancia, elegidos = maximaGanancia(carteles, g, k,None, calculados)
 print("ganancia",ganancia)
 print("elegidos",elegidos)
+
 print("calculados",calculados)
