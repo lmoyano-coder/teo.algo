@@ -8,6 +8,11 @@
 # (s->n-1).MaxPeso + (n-1->n).Peso. Con n-1 uno de los nodos que va hacia n. Y así
 # sucesivamente hasta s->s que es 0. Entonces:
 # MaxPeso(s->n) = max(for n-1 con camino a n: MaxPeso(s->n-1)) + Peso(n-1->n)
+# Complejidad espacial: O(V)(como mucho guardamos un resultado para cada vertice). 
+# Temporal: Si el pesoMax para un determinado nodo ya esta calculado, su costo será
+# O(1). Si no, será la suma de los calculos de sus nodos padres. Se Calculara cada
+# arista/edge una vez. Obtener el peso de una arista es O(1). Como tenemos 
+# E aristas, la complejidad temporal será: O(E + V)
 INICIO = 0
 FIN = 1
 PESO = 2
