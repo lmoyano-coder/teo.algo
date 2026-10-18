@@ -16,7 +16,7 @@ def prueba_aumentar_camino():
     e_3_5=6
     e_3_1=7
     print(f)
-    aumentar_flujo_camino([e_s_2,e_2_3,e_3_1,e_1_4,e_4_5], f, g)
+    aumentar_flujo_camino([e_s_2,e_2_3,e_3_1,e_1_4,e_4_5], f, g) # type: ignore
     print(f)
 def prueba_crear_gr():
     #      s, 1, 2,3,4,t
@@ -36,7 +36,7 @@ def prueba_crear_gr():
     e_3_5=6
     e_3_1=7
     print(f)
-    aumentar_flujo_camino([e_s_2,e_2_3,e_3_1,e_1_4,e_4_5], f, gr)
+    aumentar_flujo_camino([e_s_2,e_2_3,e_3_1,e_1_4,e_4_5], f, gr) # type: ignore
     print(f)
 def prueba_proximo_camino():
     #      s, 1, 2,3,4,t

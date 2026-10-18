@@ -67,6 +67,5 @@
 # out = 'out'
 # ha = 'ha'+out
 # print(ha)
-x=0
-x += sum([i for i in range(10)])
-print(x)
+x=["o"]
+print(x.append("h"))

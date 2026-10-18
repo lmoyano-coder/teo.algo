@@ -6,7 +6,7 @@ def es_adelante(e,f):
         return True
     return False
 def obtener_vertices(fila:list):
-    u, v = None, None
+    u, v = 0, None
     for i in range(0,len(fila)):
         if fila[i] != 0:
             u = i
@@ -35,7 +35,7 @@ def capacidad_restante(e, G:list[list], f:dict):
     if not es_adelante(e,f):
         return capacidad(G[e])
     return capacidad(G[e]) - f[e]
-def aumentar_flujo_camino(p:list, f: list, g:list):
+def aumentar_flujo_camino(p:list, f: dict, g:list):
     w = min(p, key = lambda e: capacidad_restante(e, g, f))
     w = capacidad_restante(w, g, f)
     for e in p:
