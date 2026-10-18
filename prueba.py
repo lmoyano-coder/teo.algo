@@ -60,7 +60,13 @@
 # for i in range(10,0,-1):
 #     print("se jecuta for")
 
-inf = float('inf')
-if 100000000000 < inf:
-    print("100000000000 < inf")
+# inf = float('inf')
+# if 100000000000 < inf:
+#     print("100000000000 < inf")
 
+# out = 'out'
+# ha = 'ha'+out
+# print(ha)
+x=0
+x += sum([i for i in range(10)])
+print(x)
