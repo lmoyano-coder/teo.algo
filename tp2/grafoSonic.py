@@ -79,9 +79,11 @@ def ford_fulkerson_dinic(g):
         aumentar_flujo_camino(camino, f, g, gr)
         gr = construir_gr(g,f)
         camino = proximo_camino(gr, f, g)
+    for i in range(len(f)):
+        print(g[i],f[i],end=",")
     return f
-def id_compatibles(lista, idBuscado):
-    return [x[INICIO] for x in lista if x[FIN] == idBuscado]
+def id_compatibles(lista, idBuscado, comparar=1,devolver=0):
+    return [x[devolver] for x in lista if x[comparar] == idBuscado]
 def buscar_nodo(lista, nodo):
     for i in lista:
         if i[ID] == nodo:
@@ -104,29 +106,67 @@ def crear_grafo(bandas, servidores,plataformas, banda_servidor,servidor_platafor
             grafo.append([jout[ID]+OUT,p[ID],jout[ESPECTADORES]])
         grafo.append([p[ID],SUMIDERO,p[ESPECTADORES]])
     return grafo
+def aristasFlujoPositivo(grafo, flujo, idBuscada):
+    validosYcompatibles = []
+    for e in range(len(grafo)):
+        if grafo[e][INICIO] == idBuscada and flujo[e] > 0:
+            validosYcompatibles.append(e)
+    return validosYcompatibles
+def banda_plataforma(grafo, f, bandas):
+        def existe_en_BP(BP,objetivo):
+            for e in BP:
+                if e[INICIO] == objetivo[INICIO] and e[FIN] == objetivo[FIN]:
+                    return True
+            return False
+        def obtener_objetivo_BP(BP,objetivo):
+            for e in BP:
+                if e[INICIO] == objetivo[INICIO] and e[FIN] == objetivo[FIN]:
+                    return e
+            raise Exception
+        flujo = f.copy()
+        BP = []
+        ENVIADO = 2
+        for banda in bandas:
+            cantidadEspectadores = banda[ESPECTADORES]
+            servidoresCompatibles = aristasFlujoPositivo(grafo, flujo, banda[ID])
+            for e in servidoresCompatibles:
+                plataformasCompatibles = aristasFlujoPositivo(grafo, flujo, grafo[e][FIN]+OUT)
+                for ePlataforma in plataformasCompatibles:
+                    if cantidadEspectadores <= 0:
+                        break
+                    objetivo = [banda[ID],grafo[ePlataforma][FIN],0]
+                    if not existe_en_BP(BP, objetivo):
+                        BP.append(objetivo)
+                    bandaPlataforma = obtener_objetivo_BP(BP, objetivo)
+                    cambio = min(flujo[ePlataforma],cantidadEspectadores)
+                    bandaPlataforma[ENVIADO] += cambio
+                    cantidadEspectadores -= cambio
+                    flujo[ePlataforma] -=  cambio
+        return BP
 def main(bandas:list[tuple[str,int]], servidores:list[tuple[str,int]], 
         plataformas:list[tuple[str,int]], banda_servidor:list[tuple[str,str]],
         servidor_plataforma:list[tuple[str,str]]):
-    def banda_plataforma(grafo, flujo):
-        return None
     def desplegar_espectadores():
         G:list = crear_grafo(bandas, servidores,plataformas, banda_servidor,servidor_plataforma)
         flujo:list = ford_fulkerson_dinic(G)
         flujoMax = sum([flujo[e] for e in range(len(G)) if G[e][FIN] == SUMIDERO])
         espectadores_requeridos = sum([e[CAPACIDAD] for e in G if e[INICIO] == FUENTE])
         posible = flujoMax == espectadores_requeridos
-        asignaciones = banda_plataforma(G, flujo)
+        asignaciones = banda_plataforma(G, flujo, bandas)
         return posible, flujoMax, asignaciones
     return desplegar_espectadores()
+
 bandas = [('KUNAI',7),('VÖLSA',5),('TREMOR',6)]
 servidores = [('ZARZA',8),('MIRLO',7),('OTEO',5)]
 plataformas = [('ONDA',10),('CRISOL',8)]
-banda_servidor = [('KUNAI','ZARZA'),('KUNAI','MIRLO'),('VÖLSA','MIRLO'),
+bs = [('KUNAI','ZARZA'),('KUNAI','MIRLO'),('VÖLSA','MIRLO'),
                     ('VÖLSA','OTEO'),('TREMOR','ZARZA'),('TREMOR','OTEO')]
-servidor_plataforma = [('ZARZA','ONDA'),('MIRLO','ONDA'),('MIRLO','CRISOL'),
+sp = [('ZARZA','ONDA'),('MIRLO','ONDA'),('MIRLO','CRISOL'),
                     ('OTEO','CRISOL')]
 
-# print(main(bandas, servidores, plataformas,banda_servidor,servidor_plataforma))
+posible, flujo_max, asignacion = main(bandas, servidores, plataformas, bs, sp)
+print("\n",posible, flujo_max, asignacion)
+
 
 # g = [['fuente','2',10],['fuente','1',20],['2','3',10],['1','3',30],
 #                     ['1','4',10],['3','sumidero',20],['4','sumidero',10]]
