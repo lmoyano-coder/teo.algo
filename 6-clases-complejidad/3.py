@@ -5,3 +5,6 @@
 # tiene un conjunto fuertemente independiente de tamaño al menos k. Probar que el
 # problema de Conjuntos Fuertemente Independientes es NP completo. Utilizar para ello que
 # Conjuntos Independientes es NP completo
+
+# idea: por cada arista e=(u,v) voy a reemplazarla por e1=(u,n) y e2=(n,v), siendo n un vertice
+# que no pertenece a V, y creando uno por cada arista.
