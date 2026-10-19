@@ -138,7 +138,7 @@ def banda_plataforma(grafo, f, bandas):
                     if not existe_en_BP(BP, objetivo):
                         BP.append(objetivo)
                     bandaPlataforma = obtener_objetivo_BP(BP, objetivo)
-                    cambio = min(flujo[ePlataforma],cantidadEspectadores)
+                    cambio = min(flujo[ePlataforma],cantidadEspectadores,flujo[e])
                     bandaPlataforma[ENVIADO] += cambio
                     cantidadEspectadores -= cambio
                     flujo[ePlataforma] -=  cambio
