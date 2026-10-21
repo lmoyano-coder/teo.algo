@@ -111,7 +111,6 @@ class TestFestivasFlujoMax(unittest.TestCase):
         sp = [("S1", "P1"), ("S2", "P1"), ("S2", "P2")]
         asignacionEsperada = [['B1', 'P1', 5], ['B1', 'P2', 1], ['B2', 'P2', 4]]
         posible, flujo_max, asignacion = main(bandas, servidores, plataformas, bs, sp)
-
         self.assertTrue(posible)
         self.assertEqual(flujo_max, 10)
         self.assertGrafoIgual(asignacionEsperada, asignacion)

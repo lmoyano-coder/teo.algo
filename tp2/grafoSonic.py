@@ -1,9 +1,3 @@
-# La transmisión de este año es: 
-# bandas KUNAI (7), VÖLSA (5) y TREMOR (6); 
-# servidores ZARZA (8), MIRLO (7) y OTEO (5); 
-# plataformas ONDA (10) y CRISOL (8). 
-# KUNAI se transmite por ZARZA y MIRLO, VÖLSA por MIRLO y OTEO, y TREMOR por ZARZA y 
-# OTEO; ZARZA llega a ONDA, MIRLO a ONDA y CRISOL, y OTEO a CRISOL. 
 OUT = 'out'
 FUENTE = 'fuente'
 SUMIDERO = 'sumidero'
@@ -12,6 +6,9 @@ ESPECTADORES = 1
 INICIO = 0
 FIN = 1
 CAPACIDAD = 2
+g_guardada = None
+f_guardada = None
+
 def construir_gr(g, f):
     gr= g.copy()
     for i in range(len(f)):#los que tienen flujo mayor a 0
@@ -71,16 +68,17 @@ def aumentar_flujo_camino(camino, f, g, gr):
             f[e] += cuelloBotella
         else:
             f[e_inversa(e,g)] -= cuelloBotella
-def ford_fulkerson_dinic(g):
-    f = [0]*len(g)
+def ford_fulkerson_dinic(g, f=None):
+    if f == None: 
+        f = [0]*len(g)
     gr = construir_gr(g,f)
     camino = proximo_camino(gr, f, g)
     while camino != [] and camino != None:
         aumentar_flujo_camino(camino, f, g, gr)
         gr = construir_gr(g,f)
         camino = proximo_camino(gr, f, g)
-    for i in range(len(f)):
-        print(g[i],f[i],end=",")
+    # for i in range(len(f)):
+    #     print(g[i],f[i],end=",")
     return f
 def id_compatibles(lista, idBuscado, comparar=1,devolver=0):
     return [x[devolver] for x in lista if x[comparar] == idBuscado]
@@ -112,7 +110,8 @@ def aristasFlujoPositivo(grafo, flujo, idBuscada):
         if grafo[e][INICIO] == idBuscada and flujo[e] > 0:
             validosYcompatibles.append(e)
     return validosYcompatibles
-def banda_plataforma(grafo, f, bandas):
+
+def banda_plataforma(grafo, f):
         def existe_en_BP(BP,objetivo):
             for e in BP:
                 if e[INICIO] == objetivo[INICIO] and e[FIN] == objetivo[FIN]:
@@ -126,6 +125,7 @@ def banda_plataforma(grafo, f, bandas):
         flujo = f.copy()
         BP = []
         ENVIADO = 2
+        bandas = [[e[FIN],e[CAPACIDAD]] for e in grafo if e[INICIO]==FUENTE]
         for banda in bandas:
             cantidadEspectadores = banda[ESPECTADORES]
             servidoresCompatibles = aristasFlujoPositivo(grafo, flujo, banda[ID])
@@ -143,29 +143,86 @@ def banda_plataforma(grafo, f, bandas):
                     cantidadEspectadores -= cambio
                     flujo[ePlataforma] -=  cambio
         return BP
+
+def desplegar_espectadores(G, flujo):
+    flujoMax = sum([flujo[e] for e in range(len(G)) if G[e][FIN] == SUMIDERO])
+    espectadores_requeridos = sum([e[CAPACIDAD] for e in G if e[INICIO] == FUENTE])
+    posible = flujoMax == espectadores_requeridos
+    asignaciones = banda_plataforma(G, flujo)
+    return posible, flujoMax, asignaciones
+
 def main(bandas:list[tuple[str,int]], servidores:list[tuple[str,int]], 
         plataformas:list[tuple[str,int]], banda_servidor:list[tuple[str,str]],
         servidor_plataforma:list[tuple[str,str]]):
-    def desplegar_espectadores():
-        G:list = crear_grafo(bandas, servidores,plataformas, banda_servidor,servidor_plataforma)
-        flujo:list = ford_fulkerson_dinic(G)
-        flujoMax = sum([flujo[e] for e in range(len(G)) if G[e][FIN] == SUMIDERO])
-        espectadores_requeridos = sum([e[CAPACIDAD] for e in G if e[INICIO] == FUENTE])
-        posible = flujoMax == espectadores_requeridos
-        asignaciones = banda_plataforma(G, flujo, bandas)
-        return posible, flujoMax, asignaciones
-    return desplegar_espectadores()
+    global g_guardada, f_guardada
+    G:list = crear_grafo(bandas, servidores,plataformas, banda_servidor,servidor_plataforma)
+    flujo:list = ford_fulkerson_dinic(G)
+    g_guardada, f_guardada = G, flujo
+    return desplegar_espectadores(G, flujo)
 
-bandas = [('KUNAI',7),('VÖLSA',5),('TREMOR',6)]
-servidores = [('ZARZA',8),('MIRLO',7),('OTEO',5)]
-plataformas = [('ONDA',10),('CRISOL',8)]
-bs = [('KUNAI','ZARZA'),('KUNAI','MIRLO'),('VÖLSA','MIRLO'),
-                    ('VÖLSA','OTEO'),('TREMOR','ZARZA'),('TREMOR','OTEO')]
-sp = [('ZARZA','ONDA'),('MIRLO','ONDA'),('MIRLO','CRISOL'),
-                    ('OTEO','CRISOL')]
+def equilibrar(g, f, vertice, cola):
+    def conjuntoYFlujo(g, direccion, vertice):
+        conjunto = [e for e in range(len(g)) if g[e][direccion] == vertice]
+        flujo = sum([f[e] for e in conjunto])
+        return conjunto, flujo
+    # Conservación del flujo: en cada vértice intermedio, el flujo que entra debe ser igual al que sale
+    if vertice == FUENTE or vertice ==SUMIDERO:
+        return
+    anteriores, flujoAnteriores = conjuntoYFlujo(g, FIN, vertice)#los que terminan en vertice
+    siguientes,flujoSiguientes = conjuntoYFlujo(g, INICIO, vertice)#los que empiezan en vertice
+    if flujoAnteriores == flujoSiguientes:
+        return
+    excedido = siguientes if flujoSiguientes > flujoAnteriores else anteriores
+    direccion = FIN if flujoSiguientes > flujoAnteriores else INICIO
+    exceso = abs(flujoAnteriores - flujoSiguientes)
+    for e in excedido:
+        if exceso <= 0:
+            break
+        cambio = min(f[e], exceso)
+        f[e] -= cambio
+        exceso -= cambio
+        cola.append(g[e][direccion])
 
-posible, flujo_max, asignacion = main(bandas, servidores, plataformas, bs, sp)
-print("\n",posible, flujo_max, asignacion)
+def bfs_equilibrar(g, f, id_servidor):
+    cola = [id_servidor,id_servidor+OUT]
+    for vertice in cola:
+        equilibrar(g, f, vertice, cola)
+
+def actualizar_servidor(id_servidor: str, nueva_capacidad: int):
+    def obtener_objetivo(lista,objetivo):
+        for e in range(len(lista)):
+            if lista[e][INICIO] == objetivo[INICIO] and lista[e][FIN] == objetivo[FIN]:
+                return e
+        raise Exception
+    global g_guardada, f_guardada
+    if g_guardada == None or f_guardada == None:
+        raise Exception("ERROR: Se debe llamar a main previamente")
+    
+    aristaServidor = obtener_objetivo(g_guardada,[id_servidor, id_servidor+OUT])
+
+    if nueva_capacidad >= g_guardada[aristaServidor][CAPACIDAD]:
+        g_guardada[aristaServidor][CAPACIDAD] = nueva_capacidad
+        return desplegar_espectadores(g_guardada, f_guardada)
+    
+    g_guardada[aristaServidor][CAPACIDAD] = nueva_capacidad
+    f_guardada[aristaServidor] = nueva_capacidad
+
+    bfs_equilibrar(g_guardada,f_guardada,id_servidor)
+    return desplegar_espectadores(g_guardada, f_guardada)
+
+bandas = [("B1", 6), ("B2", 4)]
+servidores = [("S1", 5), ("S2", 6)]
+plataformas = [("P1", 5), ("P2", 5)]
+bs = [("B1", "S1"), ("B1", "S2"), ("B2", "S2")]
+sp = [("S1", "P1"), ("S2", "P1"), ("S2", "P2")]
+asignacionEsperada = [['B1', 'P1', 5], ['B1', 'P2', 1], ['B2', 'P2', 4]]
+
+print(main(bandas, servidores, plataformas, bs, sp))
+print("---------")
+print(actualizar_servidor("S2",4))
+
+# print(g_guardada, f_guardada)
+# print(posible, flujo_max, asignacion)
 
 
 # g = [['fuente','2',10],['fuente','1',20],['2','3',10],['1','3',30],

@@ -67,5 +67,10 @@
 # out = 'out'
 # ha = 'ha'+out
 # print(ha)
-x=["o"]
-print(x.append("h"))
+# x=["o"]
+# print(x.append("h"))
+
+grafo = [[1],[2],[3]]
+e = grafo[1]
+e[0] = 1000
+print(grafo)
