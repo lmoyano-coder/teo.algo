@@ -18,12 +18,15 @@ def construir_gr(g, f):
         fila[INICIO],fila[FIN] = fila[FIN],fila[INICIO]
         gr.append(fila)
     return gr
+
 def es_adelante(e,f):
     return e <= len(f)-1
+
 def capacidad_restante(e, g, f):
     if not es_adelante(e,f):
         return g[e][CAPACIDAD]
     return g[e][CAPACIDAD] - f[e]
+
 def proximo_camino(gr, f, g):
     def destino_en_camino(candidato, camino):
         for e in camino:
@@ -55,6 +58,7 @@ def proximo_camino(gr, f, g):
     nodoActual = FUENTE
     camino = dfs(gr, nodoActual, camino)
     return camino
+
 def aumentar_flujo_camino(camino, f, g, gr):
     def e_inversa(e, g):
         for numArista, arista in enumerate(g):
@@ -68,6 +72,7 @@ def aumentar_flujo_camino(camino, f, g, gr):
             f[e] += cuelloBotella
         else:
             f[e_inversa(e,g)] -= cuelloBotella
+
 def ford_fulkerson_dinic(g, f=None):
     if f == None: 
         f = [0]*len(g)
@@ -77,18 +82,20 @@ def ford_fulkerson_dinic(g, f=None):
         aumentar_flujo_camino(camino, f, g, gr)
         gr = construir_gr(g,f)
         camino = proximo_camino(gr, f, g)
-    # for i in range(len(f)):
-    #     print(g[i],f[i],end=",")
     return f
+
 def id_compatibles(lista, idBuscado, comparar=1,devolver=0):
     return [x[devolver] for x in lista if x[comparar] == idBuscado]
+
 def buscar_nodo(lista, nodo):
     for i in lista:
         if i[ID] == nodo:
             return i
     raise Exception('no se encontro el nodo')
+
 def compatibles(listaDondeBuscar, listaId):
     return [buscar_nodo(listaDondeBuscar, i) for i in listaId]
+
 def crear_grafo(bandas, servidores,plataformas, banda_servidor,servidor_plataforma):
     grafo = []
     for b in bandas:
@@ -104,6 +111,7 @@ def crear_grafo(bandas, servidores,plataformas, banda_servidor,servidor_platafor
             grafo.append([jout[ID]+OUT,p[ID],jout[ESPECTADORES]])
         grafo.append([p[ID],SUMIDERO,p[ESPECTADORES]])
     return grafo
+
 def aristasFlujoPositivo(grafo, flujo, idBuscada):
     validosYcompatibles = []
     for e in range(len(grafo)):
@@ -142,6 +150,7 @@ def banda_plataforma(grafo, f):
                     bandaPlataforma[ENVIADO] += cambio
                     cantidadEspectadores -= cambio
                     flujo[ePlataforma] -=  cambio
+                    flujo[e] -= cambio
         return BP
 
 def desplegar_espectadores(G, flujo):
@@ -194,6 +203,12 @@ def actualizar_servidor(id_servidor: str, nueva_capacidad: int):
             if lista[e][INICIO] == objetivo[INICIO] and lista[e][FIN] == objetivo[FIN]:
                 return e
         raise Exception
+    def actualizar_capacidad(arista_servidor, g):
+        g[arista_servidor][CAPACIDAD] = nueva_capacidad
+        j_p = [jp for jp in range(len(g)) if g[jp][INICIO] == id_servidor+OUT]
+        for e in j_p:
+            g[e][CAPACIDAD] = nueva_capacidad
+
     global g_guardada, f_guardada
     if g_guardada == None or f_guardada == None:
         raise Exception("ERROR: Se debe llamar a main previamente")
@@ -201,10 +216,10 @@ def actualizar_servidor(id_servidor: str, nueva_capacidad: int):
     aristaServidor = obtener_objetivo(g_guardada,[id_servidor, id_servidor+OUT])
 
     if nueva_capacidad >= g_guardada[aristaServidor][CAPACIDAD]:
-        g_guardada[aristaServidor][CAPACIDAD] = nueva_capacidad
+        actualizar_capacidad(aristaServidor, g_guardada)
         return desplegar_espectadores(g_guardada, f_guardada)
     
-    g_guardada[aristaServidor][CAPACIDAD] = nueva_capacidad
+    actualizar_capacidad(aristaServidor, g_guardada)
     f_guardada[aristaServidor] = nueva_capacidad
 
     bfs_equilibrar(g_guardada,f_guardada,id_servidor)
@@ -215,17 +230,9 @@ servidores = [("S1", 5), ("S2", 6)]
 plataformas = [("P1", 5), ("P2", 5)]
 bs = [("B1", "S1"), ("B1", "S2"), ("B2", "S2")]
 sp = [("S1", "P1"), ("S2", "P1"), ("S2", "P2")]
-asignacionEsperada = [['B1', 'P1', 5], ['B1', 'P2', 1], ['B2', 'P2', 4]]
-
-print(main(bandas, servidores, plataformas, bs, sp))
-print("---------")
+main(bandas, servidores, plataformas, bs, sp)
 print(actualizar_servidor("S2",4))
 
-# print(g_guardada, f_guardada)
-# print(posible, flujo_max, asignacion)
-
-
-# g = [['fuente','2',10],['fuente','1',20],['2','3',10],['1','3',30],
-#                     ['1','4',10],['3','sumidero',20],['4','sumidero',10]]
-# f = ford_fulkerson_dinic(g)
-# print(f)
+# print(main(bandas, servidores, plataformas, bs, sp))
+# print("---------")
+# print(actualizar_servidor("S2",4))

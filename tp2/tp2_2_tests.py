@@ -98,11 +98,14 @@ class TestFestivasFlujoMax(unittest.TestCase):
                             ('VÖLSA','OTEO'),('TREMOR','ZARZA'),('TREMOR','OTEO')]
         servidor_plataforma = [('ZARZA','ONDA'),('MIRLO','ONDA'),('MIRLO','CRISOL'),
                             ('OTEO','CRISOL')]
-        posible, Max = 0, 1
+        posible, Max, asignacion = 0, 1, 2
+        asignacionEsperada = [['KUNAI', 'ONDA', 4], ['KUNAI', 'CRISOL', 3], 
+                            ['VÖLSA', 'CRISOL', 5], ['TREMOR', 'ONDA', 6]]
         flujoMax = 18
         resultado = main(bandas, servidores, plataformas,banda_servidor,servidor_plataforma)
         self.assertTrue(resultado[posible])
         self.assertEqual(flujoMax,resultado[Max])
+        self.assertGrafoIgual(asignacionEsperada, resultado[asignacion])
     def test_09ejemplo_del_enunciado_factible(self):
         bandas = [("B1", 6), ("B2", 4)]
         servidores = [("S1", 5), ("S2", 6)]
@@ -114,8 +117,31 @@ class TestFestivasFlujoMax(unittest.TestCase):
         self.assertTrue(posible)
         self.assertEqual(flujo_max, 10)
         self.assertGrafoIgual(asignacionEsperada, asignacion)
-    def test_10reconstruirBandaPlataforma(self):
-        pass
-
+    def test_10cambiarCapaciadUnoMenos(self):
+        bandas = [("B1", 6), ("B2", 4)]
+        servidores = [("S1", 5), ("S2", 6)]
+        plataformas = [("P1", 5), ("P2", 5)]
+        bs = [("B1", "S1"), ("B1", "S2"), ("B2", "S2")]
+        sp = [("S1", "P1"), ("S2", "P1"), ("S2", "P2")]
+        asignacionEsperada = [['B1', 'P1', 5], ['B2', 'P2', 4]]
+        flujoMaxEsperado = 9
+        main(bandas, servidores, plataformas, bs, sp)
+        posible, flujoMax, asignacion = actualizar_servidor("S2",4)
+        self.assertFalse(posible)
+        self.assertEqual(flujoMax, flujoMaxEsperado)
+        self.assertGrafoIgual(asignacionEsperada, asignacion)
+    def test_11cambiarCapacdadA0(self):
+        bandas = [("B1", 6), ("B2", 4)]
+        servidores = [("S1", 5), ("S2", 6)]
+        plataformas = [("P1", 5), ("P2", 5)]
+        bs = [("B1", "S1"), ("B1", "S2"), ("B2", "S2")]
+        sp = [("S1", "P1"), ("S2", "P1"), ("S2", "P2")]
+        asignacionEsperada = [['B1', 'P1', 5]]
+        flujoMaxEsperado = 5
+        main(bandas, servidores, plataformas, bs, sp)
+        posible, flujoMax, asignacion = actualizar_servidor("S2",0)
+        self.assertFalse(posible)
+        self.assertEqual(flujoMax, flujoMaxEsperado)
+        self.assertGrafoIgual(asignacionEsperada, asignacion)
 if __name__ == "__main__":
     unittest.main()
