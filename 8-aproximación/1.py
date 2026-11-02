@@ -11,3 +11,9 @@
 
 # a) capacidad 1: llega 1/2, lo subo. llega 2/3, no entra, el barco zarpa y vuelve. meto el 2/3.
 # llega 1/2, no entra, zarpa el barco y al regresar subo al 1/2. como es el último barco subo y zarpo
+# use 3 barcos, pero el 1er y 3er auto podían entrar en uno, y el 2do en otro, o sea dos barcos.
+
+# b) 0 < peso auto < k. Pi=peso del auto i, P = suma de todos los pesos, k capacidad kilos. C vehiculos
+# cota de viajes: ceil(P/k). Si pudiera dividir perfectamente el peso en cachos de tamaño k.
+# V = viajes del encargado, V*= viajes optimos >= ceil(P/k). Queremos probar que V/V* = 2 
+# V <= C. V >= V*. -> C >= V >= V* >= ceil(P/K)
